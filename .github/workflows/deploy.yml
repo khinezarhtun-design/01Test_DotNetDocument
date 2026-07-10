@@ -1,6 +1,6 @@
 name: .NET CI/CD Production Deployment Pipeline
 
-on:
+on: 
   push:
     branches:
       - main
@@ -8,46 +8,40 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
-
     steps:
-      # Checkout source code
-      - name: Checkout Repository
+      # Step 1: Checkout codebase to the virtual environment runner
+      - name: Checkout Code Repository
         uses: actions/checkout@v4
 
-      # Install .NET 8 SDK
-      - name: Setup .NET SDK
+      # Step 2: Provision .NET Software Development Kit environment
+      - name: Setup .NET SDK Core Environment
         uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: '/home/ubuntu/dotnet'
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.x' # Update to reflect your target major runtime framework
 
-      # Restore NuGet packages
-      - name: Restore Dependencies
+      # Step 3: run modern explicit dependency resolution mapping
+      - name: Execute .NET Restore
         run: dotnet restore WebApplication1/WebApplication1.csproj
 
-      # Build application
-      - name: Build Project
+      # Step 4: Perform compilation optimization packaging tasks
+      - name: Execute .NET Project Build
         run: dotnet build WebApplication1/WebApplication1.csproj --configuration Release --no-restore
 
-      # Publish application
-      - name: Publish Project
+      # Step 5: Isolate compilations into production directory states
+      - name: Execute .NET Publish Distribution Binaries
         run: dotnet publish WebApplication1/WebApplication1.csproj --configuration Release --output ./publish --no-build
 
-      # Create deployment ZIP
-      - name: Create Deployment Package
+      # Step 6: Create compressed tracking artifact transport payload
+      - name: Compress Release Package Artifact
         run: |
-          cd publish
+          cd ./publish
           zip -r ../latest-build.zip .
           cd ..
-
-      # Verify ZIP exists
-      - name: Verify Package
-        run: |
-          ls -lh
-          ls -lh latest-build.zip
-
-      # Upload ZIP to EC2
-      - name: Upload Package to Server
-        uses: appleboy/scp-action@master
+      # Step 7: Execute remote deployment script via SSH
+      - name: Execute SSH Deployment Command
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ec2-user
@@ -55,10 +49,11 @@ jobs:
           port: 22
           source: "latest-build.zip"
           target: "/var/www/deploy-package"
+          strip_components: 0
 
-      # Run deployment script
-      - name: Deploy Application
-        uses: appleboy/ssh-action@master
+      # Step 8: Trigger remote service updating process sequences via SSH
+      - name: Execute Automated Remote Server Update Pipeline
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ec2-user
@@ -66,4 +61,3 @@ jobs:
           port: 22
           script: |
             bash /var/www/deploy/deployment.sh
-            
