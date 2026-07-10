@@ -1,0 +1,45 @@
+name: .NET CI/CD Production Deployment Pipeline
+on: 
+ push:
+ branches:
+ - main
+jobs:
+build-and-deploy:
+runs-on: self-hosted
+steps:
+# Step 1: Checkout codebase to the virtua; environment runner
+- name: Checkout Code Repository
+uses: actions/checkout@v4
+# Step 2: Provision .NET Software Development Kit environment
+- name: Setup .NET SDK Core Environment
+uses: actions/setup-dotnet@v4
+env:
+ DOTNET_INSTALL_DIR: '/home/ubuntu/dotnet'
+with:
+dotnet-version: '8.0.x' # Update to reflect your target major runtime framework
+version
+# Step 3: run modern explicit dependency resolution mapping
+- name: Execute .NET Restore
+run: dotnet restore WebApplication1/WebApplication1.csproj
+# Step 4: Perform compilation optimization packaging tasks
+- name: Excute .NET Project Build
+run: dotnet build WebApplication1/WebApplication1.csproj --configuration Release --no-restore
+# Step 5: Isolate compilations into production directory states
+- name: Excute .NET Publish Distribution Binaries
+run: dotnet publish WebApplication1/WebApplication1.csproj --configuration Release --output ./publish --no-build
+# Step 6: Create compressed tracking artifact transport payload
+- name: Compress Release Package Artifact
+run: |
+cd ./publish
+zip -r ../latest-build.zip . *
+cd ..
+# Step 7: Transport zip payload via SCP to the EC2 target storage path
+- name: Copy Package Payload via Secure Copy Protocol (SCP)
+uses: appleboy/ssh-action@v1.0.3
+with:
+host: ${{ secrects.SERVER_IP }}
+username: ec2-user
+password: ${{ secrects.SERVER_PASSWORD }}
+port: 22
+script: |
+bash /var/www/deploy/deployment.sh 
