@@ -37,7 +37,7 @@ jobs:
       - name: Compress Release Package Artifact
         run: |
           cd ./publish
-          zip -r ../latest-build.zip .
+          zip -r ../latest-build.zip . *
           cd ..
       # Step 7: Execute remote deployment script via SSH
       - name: Execute SSH Deployment Command
